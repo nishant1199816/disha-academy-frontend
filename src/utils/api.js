@@ -2,6 +2,7 @@
 // Sab backend calls yahan se hain
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+console.log("API URL:", BASE_URL)
 
 const getToken = () => localStorage.getItem('edtech_token')
 

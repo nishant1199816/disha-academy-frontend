@@ -1,0 +1,60 @@
+/* ── Button ── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: 'DM Sans',sans-serif; font-weight: 600; cursor: pointer; border: none; border-radius: 8px; transition: all 0.18s ease; white-space: nowrap; text-decoration: none; position: relative; overflow: hidden; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-full { width: 100%; }
+.btn-sm  { font-size: 13px; padding: 7px 14px; }
+.btn-md  { font-size: 14px; padding: 10px 20px; }
+.btn-lg  { font-size: 15px; padding: 13px 28px; }
+
+.btn-primary { background: var(--accent); color: var(--bg-primary); box-shadow: 0 2px 8px var(--accent-glow); }
+.btn-primary:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 4px 16px var(--accent-glow); transform: translateY(-1px); }
+.btn-secondary { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border); }
+.btn-secondary:hover:not(:disabled) { background: var(--bg-card-hover); border-color: var(--border-accent); }
+.btn-ghost { background: transparent; color: var(--text-secondary); }
+.btn-ghost:hover:not(:disabled) { background: var(--bg-elevated); color: var(--text-primary); }
+.btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+.btn-danger:hover:not(:disabled) { background: var(--red); color: #fff; }
+.btn-icon { display: flex; align-items: center; }
+.spinner-sm { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: currentColor; border-radius: 50%; animation: spin 0.7s linear infinite; }
+.btn-loading { pointer-events: none; }
+
+/* ── Badge ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 999px; font-family: 'Syne',sans-serif; text-transform: uppercase; }
+.badge-accent { background: var(--accent-dim); color: var(--accent); }
+.badge-green  { background: var(--green-dim);  color: var(--green); }
+.badge-red    { background: var(--red-dim);    color: var(--red); }
+.badge-blue   { background: var(--blue-dim);   color: var(--blue); }
+.badge-amber  { background: var(--amber-dim);  color: var(--amber); }
+.badge-gray   { background: var(--bg-elevated); color: var(--text-secondary); }
+
+/* ── Card ── */
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow-card); transition: background 0.3s, border-color 0.3s; }
+.card-hoverable { cursor: pointer; transition: all 0.2s; }
+.card-hoverable:hover { background: var(--bg-card-hover); border-color: var(--border-accent); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+
+/* ── Spinner ── */
+.spinner { width: 36px; height: 36px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+/* ── Avatar ── */
+.avatar { border-radius: 50%; background: var(--accent-dim); color: var(--accent); font-family: 'Syne',sans-serif; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.avatar-sm { width: 32px; height: 32px; font-size: 12px; }
+.avatar-md { width: 40px; height: 40px; font-size: 14px; }
+.avatar-lg { width: 56px; height: 56px; font-size: 18px; }
+
+/* ── Progress ── */
+.progress-track { width: 100%; height: 5px; background: var(--bg-elevated); border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+.progress-accent { background: var(--accent); }
+.progress-green  { background: var(--green); }
+.progress-blue   { background: var(--blue); }
+
+/* ── Stat Card ── */
+.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 4px; transition: background 0.3s, border-color 0.3s; }
+.stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+.stat-icon-accent { background: var(--accent-dim); color: var(--accent); }
+.stat-icon-green  { background: var(--green-dim);  color: var(--green); }
+.stat-icon-blue   { background: var(--blue-dim);   color: var(--blue); }
+.stat-icon-amber  { background: var(--amber-dim);  color: var(--amber); }
+.stat-value { font-size: 26px; font-weight: 700; font-family: 'Syne',sans-serif; color: var(--text-primary); line-height: 1; }
+.stat-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-sub   { font-size: 12px; color: var(--text-tertiary); }

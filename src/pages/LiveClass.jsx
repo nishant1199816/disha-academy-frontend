@@ -6,7 +6,7 @@ import { Shield, Users, Mic, MicOff, Hand, MessageSquare, AlertCircle } from 'lu
 import './live.css'
 
 export default function LiveClass() {
-  const { user } = useAuth()
+  const { user, isEnrolled } = useAuth()
   const navigate = useNavigate()
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
@@ -51,7 +51,8 @@ export default function LiveClass() {
   const watermarkText = `${user?.name} · ${user?.id} · EduPlatform`
 
   // Redirect if not paid
-  if (!user?.paid) {
+  const hasAccess = user?.enrollments?.length > 0 || user?.role === "admin"
+  if (!hasAccess) {
     return (
       <div className="live-gate container">
         <div className="gate-card">

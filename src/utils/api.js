@@ -1,7 +1,7 @@
 // Disha Academy — API Service
 // Sab backend calls yahan se hain
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 console.log("API URL:", BASE_URL)
 
 const getToken = () => localStorage.getItem('edtech_token')
@@ -20,38 +20,38 @@ const handle = async (res) => {
 
 // ── AUTH ──────────────────────────────────────────────────────────
 export const authAPI = {
-  register: (body)    => fetch(`${BASE_URL}/auth/register`, { method: 'POST', headers: headers(), body: JSON.stringify(body) }).then(handle),
-  login:    (body)    => fetch(`${BASE_URL}/auth/login`,    { method: 'POST', headers: headers(), body: JSON.stringify(body) }).then(handle),
-  me:       ()        => fetch(`${BASE_URL}/auth/me`,       { headers: headers() }).then(handle),
-  changePassword: (b) => fetch(`${BASE_URL}/auth/change-password`, { method: 'PUT', headers: headers(), body: JSON.stringify(b) }).then(handle),
+  register: (body)    => fetch(`${BASE_URL}/api/auth/register`, { method: 'POST', headers: headers(), body: JSON.stringify(body) }).then(handle),
+  login:    (body)    => fetch(`${BASE_URL}/api/auth/login`,    { method: 'POST', headers: headers(), body: JSON.stringify(body) }).then(handle),
+  me:       ()        => fetch(`${BASE_URL}/api/auth/me`,       { headers: headers() }).then(handle),
+  changePassword: (b) => fetch(`${BASE_URL}/api/auth/change-password`, { method: 'PUT', headers: headers(), body: JSON.stringify(b) }).then(handle),
 }
 
 // ── COURSES ───────────────────────────────────────────────────────
 export const courseAPI = {
-  getAll:        ()          => fetch(`${BASE_URL}/courses`,                         { headers: headers() }).then(handle),
-  getOne:        (id)        => fetch(`${BASE_URL}/courses/${id}`,                   { headers: headers() }).then(handle),
-  getLiveClasses: (courseId) => fetch(`${BASE_URL}/courses/${courseId}/live-classes`, { headers: headers() }).then(handle),
-  getMaterials:  (courseId)  => fetch(`${BASE_URL}/courses/${courseId}/materials`,    { headers: headers() }).then(handle),
+  getAll:        ()          => fetch(`${BASE_URL}/api/courses`,                         { headers: headers() }).then(handle),
+  getOne:        (id)        => fetch(`${BASE_URL}/api/courses/${id}`,                   { headers: headers() }).then(handle),
+  getLiveClasses: (courseId) => fetch(`${BASE_URL}/api/courses/${courseId}/live-classes`, { headers: headers() }).then(handle),
+  getMaterials:  (courseId)  => fetch(`${BASE_URL}/api/courses/${courseId}/materials`,    { headers: headers() }).then(handle),
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────
 export const dashboardAPI = {
-  student: () => fetch(`${BASE_URL}/dashboard`,       { headers: headers() }).then(handle),
-  admin:   () => fetch(`${BASE_URL}/admin/dashboard`, { headers: headers() }).then(handle),
+  student: () => fetch(`${BASE_URL}/api/dashboard`,       { headers: headers() }).then(handle),
+  admin:   () => fetch(`${BASE_URL}/api/admin/dashboard`, { headers: headers() }).then(handle),
 }
 
 // ── PAYMENTS ──────────────────────────────────────────────────────
 export const paymentAPI = {
-  createOrder:  (courseId)  => fetch(`${BASE_URL}/payments/create-order`, {
+  createOrder:  (courseId)  => fetch(`${BASE_URL}/api/payments/create-order`, {
     method: 'POST', headers: headers(), body: JSON.stringify({ courseId })
   }).then(handle),
 
-  verify: (data) => fetch(`${BASE_URL}/payments/verify`, {
+  verify: (data) => fetch(`${BASE_URL}/api/payments/verify`, {
     method: 'POST', headers: headers(), body: JSON.stringify(data)
   }).then(handle),
 
-  myHistory: () => fetch(`${BASE_URL}/payments/my-history`, { headers: headers() }).then(handle),
-  allPayments: (params = '') => fetch(`${BASE_URL}/admin/payments?${params}`, { headers: headers() }).then(handle),
+  myHistory: () => fetch(`${BASE_URL}/api/payments/my-history`, { headers: headers() }).then(handle),
+  allPayments: (params = '') => fetch(`${BASE_URL}/api/admin/payments?${params}`, { headers: headers() }).then(handle),
 }
 
 // ── Razorpay checkout helper ──────────────────────────────────────

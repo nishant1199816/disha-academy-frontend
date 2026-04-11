@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { authAPI } from '../utils/api'
 import { Button } from '../components/ui'
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react'
 import { DishaLogoIcon } from '../components/ui/DishaLogo'
 import './auth.css'
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+
 export default function Register() {
-  const [form, setForm]       = useState({ name:'', email:'', phone:'', password:'', confirm:'' })
+  const [form, setForm]       = useState({ name: '', email: '', phone: '', password: '', confirm: '' })
   const [showPw, setShowPw]   = useState(false)
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
@@ -24,7 +25,13 @@ export default function Register() {
     if (form.password.length < 8) return setError('Password must be at least 8 characters')
     setLoading(true)
     try {
-      const data = await authAPI.register({ name: form.name, email: form.email, phone: form.phone, password: form.password })
+      const res  = await fetch(`${BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: form.name, email: form.email, phone: form.phone, password: form.password }),
+      })
+      const data = await res.json()
+      if (!data.success) throw new Error(data.message || 'Registration failed')
       login(data.user, data.token)
       navigate('/courses')
     } catch (err) {
@@ -44,6 +51,7 @@ export default function Register() {
         </div>
         <h1 className="auth-title">Create your account</h1>
         <p className="auth-sub">Start your Sarkari Naukri preparation today</p>
+
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="field">
             <label className="field-label">Full Name</label>
@@ -81,7 +89,7 @@ export default function Register() {
               <label className="field-label">Confirm Password</label>
               <div className="field-input-wrap">
                 <Lock size={16} className="field-icon" />
-                <input type={showPw ? 'text':'password'} className="field-input" placeholder="••••••••" value={form.confirm} onChange={set('confirm')} />
+                <input type={showPw ? 'text' : 'password'} className="field-input" placeholder="••••••••" value={form.confirm} onChange={set('confirm')} />
               </div>
             </div>
           </div>

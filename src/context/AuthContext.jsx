@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { authAPI } from '../utils/api'
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
@@ -10,8 +10,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('edtech_token')
     if (!token) { setLoading(false); return }
-    authAPI.me()
-      .then(data => setUser(data.user))
+    fetch(`${BASE_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+    })
+      .then(r => r.json())
+      .then(d => { if (d.success) setUser(d.user) })
       .catch(() => { localStorage.removeItem('edtech_token'); localStorage.removeItem('edtech_user') })
       .finally(() => setLoading(false))
   }, [])
@@ -29,7 +32,15 @@ export function AuthProvider({ children }) {
   }
 
   const refreshUser = async () => {
-    try { const d = await authAPI.me(); setUser(d.user) } catch {}
+    const token = localStorage.getItem('edtech_token')
+    if (!token) return
+    try {
+      const res  = await fetch(`${BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+      })
+      const data = await res.json()
+      if (data.success) setUser(data.user)
+    } catch {}
   }
 
   const isEnrolled = (courseId) =>

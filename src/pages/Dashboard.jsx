@@ -1,10 +1,11 @@
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { StatCard, Card, Badge, ProgressBar } from '../components/ui'
 import { Link } from 'react-router-dom'
-import { BookOpen, Clock, TrendingUp, FileText, ChevronRight, Zap, Play } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { dashboardAPI } from '../utils/api'
+import { BookOpen, TrendingUp, FileText, ChevronRight, Zap, Play } from 'lucide-react'
 import './dashboard.css'
+
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 const PROGRESS = [
   { subject: 'Mathematics', done: 72, color: 'blue' },
@@ -12,14 +13,26 @@ const PROGRESS = [
   { subject: 'English',     done: 85, color: 'green' },
 ]
 
+const getGreeting = () => {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
 export default function Dashboard() {
   const { user } = useAuth()
   const [data, setData]       = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    dashboardAPI.student()
-      .then(d => setData(d))
+    const token = localStorage.getItem('edtech_token')
+    if (!token) { setLoading(false); return }
+    fetch(`${BASE_URL}/dashboard`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+    })
+      .then(r => r.json())
+      .then(d => { if (d.success) setData(d) })
       .catch(err => console.error('Dashboard error:', err))
       .finally(() => setLoading(false))
   }, [])
@@ -28,25 +41,16 @@ export default function Dashboard() {
   const stats           = data?.stats || {}
   const enrolledCourses = data?.courses || []
 
-  const getTimeGreeting = () => {
-    const h = new Date().getHours()
-    if (h < 12) return 'Good morning'
-    if (h < 17) return 'Good afternoon'
-    return 'Good evening'
-  }
-
   const formatTime = (iso) => {
     if (!iso) return ''
     return new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
   }
 
-  const isLive = (cls) => cls.status === 'live'
-
   return (
     <div className="dashboard-page container fade-up">
       <div className="dashboard-header">
         <div>
-          <h1 className="page-title">{getTimeGreeting()}, {user?.name?.split(' ')[0]} 👋</h1>
+          <h1 className="page-title">{getGreeting()}, {user?.name?.split(' ')[0]} 👋</h1>
           <p className="page-sub">Here's what's happening with your classes today</p>
         </div>
         <div className="header-batch">
@@ -54,24 +58,24 @@ export default function Dashboard() {
             ? <Badge color="accent">{enrolledCourses[0]?.exam_type} Batch</Badge>
             : <Badge color="gray">No Course Enrolled</Badge>
           }
-          <span className="batch-days">
-            {enrolledCourses[0]?.expires_at
-              ? `${Math.ceil((new Date(enrolledCourses[0].expires_at) - new Date()) / 86400000)} days remaining`
-              : ''}
-          </span>
+          {enrolledCourses[0]?.expires_at && (
+            <span className="batch-days">
+              {Math.max(0, Math.ceil((new Date(enrolledCourses[0].expires_at) - new Date()) / 86400000))} days remaining
+            </span>
+          )}
         </div>
       </div>
 
       {/* Stats */}
       <div className="stats-grid">
-        <StatCard label="Attendance" value={`${stats.classes_attended || 0}`} sub="classes attended" icon={<TrendingUp size={18} />} color="accent" />
-        <StatCard label="Courses Enrolled" value={`${stats.courses_enrolled || 0}`} sub="active courses" icon={<Clock size={18} />} color="blue" />
-        <StatCard label="Open Doubts" value={`${stats.open_doubts || 0}`} sub="pending answers" icon={<FileText size={18} />} color="green" />
-        <StatCard label="Mock Tests" value="6" sub="avg. 71% score" icon={<Zap size={18} />} color="amber" />
+        <StatCard label="Classes Attended" value={String(stats.classes_attended || 0)} sub="total"          icon={<TrendingUp size={18} />} color="accent" />
+        <StatCard label="Courses Enrolled" value={String(stats.courses_enrolled || 0)} sub="active courses" icon={<BookOpen size={18} />}    color="blue" />
+        <StatCard label="Open Doubts"      value={String(stats.open_doubts || 0)}     sub="pending"         icon={<FileText size={18} />}    color="green" />
+        <StatCard label="Mock Tests"       value="6"                                   sub="avg. 71% score"  icon={<Zap size={18} />}         color="amber" />
       </div>
 
       <div className="dashboard-grid">
-        {/* Left column */}
+        {/* Left */}
         <div className="dash-col-wide">
           <div className="section-head">
             <h2 className="section-heading">Today's Classes</h2>
@@ -80,22 +84,22 @@ export default function Dashboard() {
 
           <div className="classes-list">
             {loading ? (
-              <div style={{ color: 'var(--text-secondary)', padding: '1rem' }}>Loading classes...</div>
+              <p style={{ color: 'var(--text-secondary)', padding: '1rem' }}>Loading...</p>
             ) : upcomingClasses.length === 0 ? (
-              <div style={{ color: 'var(--text-secondary)', padding: '1rem' }}>
-                No upcoming classes today.
+              <div className="class-item" style={{ display: 'block', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                No upcoming classes.
                 {enrolledCourses.length === 0 && (
-                  <span> <Link to="/courses" style={{ color: 'var(--accent)' }}>Enroll in a course</Link> to see classes.</span>
+                  <span> <Link to="/courses" style={{ color: 'var(--accent)' }}>Enroll in a course</Link></span>
                 )}
               </div>
             ) : (
               upcomingClasses.map((c, i) => (
-                <div className={`class-item ${isLive(c) ? 'class-live' : ''}`} key={c.id || i}>
+                <div className={`class-item ${c.status === 'live' ? 'class-live' : ''}`} key={c.id || i}>
                   <div className="class-subject-dot" />
                   <div className="class-info">
                     <div className="class-top">
                       <span className="class-subject">{c.subject}</span>
-                      {isLive(c)
+                      {c.status === 'live'
                         ? <Badge color="red">🔴 Live Now</Badge>
                         : <Badge color="gray">{formatTime(c.scheduled_at)}</Badge>
                       }
@@ -103,7 +107,7 @@ export default function Dashboard() {
                     <p className="class-topic">{c.title}</p>
                     <p className="class-teacher">{c.teacher_name}</p>
                   </div>
-                  {isLive(c)
+                  {c.status === 'live'
                     ? <Link to="/live" className="btn btn-primary btn-sm">Join</Link>
                     : <button className="btn btn-secondary btn-sm">Remind</button>
                   }
@@ -112,15 +116,15 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Enrolled Courses */}
+          {/* My Courses */}
           <div className="section-head" style={{ marginTop: '2rem' }}>
             <h2 className="section-heading">My Courses</h2>
             <Link to="/courses" className="see-all">View all <ChevronRight size={14} /></Link>
           </div>
           <div className="material-list">
             {enrolledCourses.length === 0 ? (
-              <div style={{ color: 'var(--text-secondary)', padding: '1rem' }}>
-                No courses enrolled. <Link to="/courses" style={{ color: 'var(--accent)' }}>Browse courses</Link>
+              <div className="material-item" style={{ display: 'block', color: 'var(--text-secondary)' }}>
+                No courses yet. <Link to="/courses" style={{ color: 'var(--accent)' }}>Browse courses →</Link>
               </div>
             ) : (
               enrolledCourses.map((c, i) => (
@@ -137,7 +141,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right column */}
+        {/* Right */}
         <div className="dash-col-narrow">
           <Card>
             <h2 className="section-heading" style={{ marginBottom: '1.25rem' }}>Subject Progress</h2>

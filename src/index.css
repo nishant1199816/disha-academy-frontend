@@ -47,8 +47,8 @@
    LIGHT MODE
 ═══════════════════════════════════ */
 [data-theme="light"] {
-  --bg-primary:    #ebeef4;
-  --bg-secondary:  #ecedf1;
+  --bg-primary:    #f5f6fa;
+  --bg-secondary:  #eef0f7;
   --bg-card:       #ffffff;
   --bg-card-hover: #f0f3ff;
   --bg-elevated:   #e8ecf7;

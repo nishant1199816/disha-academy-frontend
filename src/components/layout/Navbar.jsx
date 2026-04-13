@@ -16,7 +16,7 @@ export default function Navbar() {
   const handleLogout = () => { logout(); navigate('/login') }
 
   const navLinks = isAdmin
-    ? [{ to: '/admin', label: 'Dashboard' }, { to: '/admin/courses', label: 'Courses' }, { to: '/admin/students', label: 'Students' }]
+    ? [{ to: '/admin', label: 'Dashboard' }, { to: '/admin/courses', label: 'Courses' }, { to: '/admin/students', label: 'Students' }, { to: '/admin/live', label: 'Live Classes' }]
     : [{ to: '/dashboard', label: 'Dashboard' }, { to: '/courses', label: 'My Courses' }, { to: '/live', label: 'Live Class' }, { to: '/tests', label: 'Mock Tests' }]
 
   return (

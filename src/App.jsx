@@ -13,6 +13,7 @@ import Payment from './pages/Payment'
 import PaymentSuccess from './pages/PaymentSuccess'
 import LiveClass from './pages/LiveClass'
 import AdminDashboard from './pages/AdminDashboard'
+import AdminLiveClass from './pages/AdminLiveClass'
 import NotFound from './pages/NotFound'
 
 function PrivateRoute({ children }) {

@@ -147,3 +147,58 @@
 }
 .gate-card h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; }
 .gate-card p { color: var(--text-secondary); font-size: 14px; }
+
+/* ── Live Class List Page ── */
+.live-list-page { padding: 2rem 0 4rem; }
+.no-classes-card { text-align: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 3rem 2rem; }
+.no-classes-card h3 { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 0.5rem; }
+.no-classes-card p { color: var(--text-secondary); font-size: 14px; }
+
+/* ── Schedule cards ── */
+.classes-schedule-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 2rem; }
+.schedule-card { display: flex; align-items: center; gap: 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; transition: all 0.2s; }
+.schedule-card:hover { border-color: var(--border-accent); background: var(--bg-card-hover); }
+.schedule-live { border-color: rgba(239,68,68,0.3) !important; background: rgba(239,68,68,0.04) !important; }
+
+.schedule-left { flex-shrink: 0; }
+.schedule-subject-badge { width: 48px; height: 48px; border-radius: var(--radius-md); background: var(--accent-dim); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 18px; font-weight: 800; }
+
+.schedule-info { flex: 1; min-width: 0; }
+.schedule-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+.schedule-subject { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+.schedule-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.schedule-meta { display: flex; gap: 16px; flex-wrap: wrap; }
+.schedule-meta span { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-secondary); }
+.schedule-course { display: inline-block; font-size: 11px; color: var(--text-tertiary); margin-top: 4px; background: var(--bg-elevated); padding: 2px 8px; border-radius: 999px; }
+
+.schedule-action { flex-shrink: 0; }
+.join-live-btn { background: var(--red); color: #fff; border: none; border-radius: var(--radius-sm); padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font-body); transition: all 0.15s; animation: pulse-glow 2s infinite; }
+.join-live-btn:hover { opacity: 0.9; transform: scale(1.03); }
+.remind-btn-schedule { background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 20px; font-size: 13px; font-weight: 500; cursor: not-allowed; font-family: var(--font-body); }
+
+/* ── Live class embed ── */
+.live-page { height: calc(100vh - 64px); display: flex; flex-direction: column; position: relative; }
+.wm-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
+.wm-text { position: absolute; font-size: 11px; color: rgba(255,255,255,0.1); font-family: monospace; white-space: nowrap; user-select: none; }
+.wm-center { top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-20deg); font-size: 14px; color: rgba(255,255,255,0.06); }
+.wm-br { bottom: 60px; right: 16px; }
+.live-topbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border); z-index: 100; flex-shrink: 0; gap: 1rem; flex-wrap: wrap; }
+.live-topbar-info { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.live-topbar-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.live-topbar-teacher { font-size: 12px; color: var(--text-tertiary); }
+.drm-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-tertiary); background: var(--bg-elevated); padding: 4px 10px; border-radius: 999px; }
+.leave-btn { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-sm); padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-body); }
+.leave-btn:hover { background: var(--red); color: #fff; }
+.jitsi-wrap { flex: 1; overflow: hidden; }
+
+/* ── Info box ── */
+.live-info-box { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; background: var(--accent-dim); border: 1px solid var(--border-accent); border-radius: var(--radius-md); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+/* ── Admin Live Class page ── */
+.how-it-works { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 1.5rem; }
+.how-it-works h3 { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 1rem; }
+.how-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.how-step { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-secondary); }
+.how-num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--bg-primary); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+.live-class-info { display: flex; align-items: flex-start; gap: 8px; background: var(--bg-elevated); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; color: var(--text-secondary); line-height: 1.6; }

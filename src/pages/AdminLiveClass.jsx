@@ -193,10 +193,17 @@ export default function AdminLiveClass() {
     await authFetch(`${BASE_URL}/admin/live-classes/${id}`, { method: 'DELETE' })
     load()
   }
+  const fmtDate = iso => iso
+  ? new Date(iso).toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      timeZone: 'Asia/Kolkata'   // 🔥 ADD THIS
+    })
+  : ''
 
-  const fmt = iso => iso ? new Date(iso).toLocaleString('en-IN', {
-    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-  }) : ''
+  // const fmt = iso => iso ? new Date(iso).toLocaleString('en-IN', {
+  //   day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+  // }) : ''
 
   const live = classes.filter(c => c.status === 'live')
   const upcoming = classes.filter(c => c.status === 'scheduled')

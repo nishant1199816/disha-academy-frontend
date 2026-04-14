@@ -1,63 +1,63 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Video, X, Play, Square, Upload } from 'lucide-react'
+import { Plus, Trash2, Video, X, Play, Square, Upload, ExternalLink } from 'lucide-react'
 import { Badge } from '../components/ui'
 import './dashboard.css'
 import './admin.css'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-const getToken = () => localStorage.getItem('edtech_token')
-const authFetch = (url, opts = {}) => fetch(url, {
+const getToken  = () => localStorage.getItem('edtech_token')
+const authFetch = (url, opts={}) => fetch(url, {
   ...opts,
-  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}`, ...opts.headers }
+  headers: { 'Content-Type':'application/json', Authorization:`Bearer ${getToken()}`, ...opts.headers }
 })
 
-// ── Add Recording Modal ───────────────────────────────────────────
-function AddRecordingModal({ cls, onClose, onSave }) {
-  const [url, setUrl] = useState(cls.recording_url || '')
+// ── Recording Modal ───────────────────────────────────────────────
+function RecordingModal({ cls, onClose, onSave }) {
+  const [url, setUrl]         = useState(cls.recording_url || '')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError]     = useState('')
 
-  const handleSave = async () => {
-    if (!url.trim()) return setError('Recording URL dalo')
+  const save = async () => {
+    if (!url.trim()) return setError('URL daalna zaroori hai')
     setLoading(true)
     try {
-      const res = await authFetch(`${BASE_URL}/admin/live-classes/${cls.id}/recording`, {
-        method: 'POST',
-        body: JSON.stringify({ recording_url: url.trim() })
+      const res  = await authFetch(`${BASE_URL}/admin/live-classes/${cls.id}/recording`, {
+        method: 'POST', body: JSON.stringify({ recording_url: url.trim() })
       })
       const data = await res.json()
       if (!data.success) throw new Error(data.message)
       onSave(); onClose()
-    } catch (err) {
-      setError(err.message || 'Recording save nahi ho saki')
-    } finally {
-      setLoading(false)
-    }
+    } catch (err) { setError(err.message) }
+    finally      { setLoading(false) }
   }
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" style={{ maxWidth: '460px' }} onClick={e => e.stopPropagation()}>
+      <div className="modal-card" style={{ maxWidth:'460px' }} onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Recording Add Karo</h2>
           <button className="modal-close" onClick={onClose}><X size={18} /></button>
         </div>
         <div className="modal-form">
           <div className="modal-field">
-            <label>Class: {cls.title}</label>
+            <label style={{ color:'var(--text-secondary)', fontSize:'13px' }}>
+              Class: <strong>{cls.title}</strong>
+            </label>
           </div>
           <div className="modal-field">
-            <label>Recording Video URL *</label>
-            <input className="modal-input" placeholder="https://youtube.com/... ya Drive link"
+            <label>Recording URL *</label>
+            <input className="modal-input"
+              placeholder="YouTube link, Google Drive ya koi bhi video URL"
               value={url} onChange={e => setUrl(e.target.value)} />
-            <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
-              YouTube unlisted link, Google Drive link, ya koi bhi video URL
-            </span>
+            <div style={{ fontSize:'12px', color:'var(--text-tertiary)', marginTop:'6px', lineHeight:'1.5' }}>
+              💡 <strong>YouTube unlisted</strong> link recommend kiya jata hai —
+              sirf link wale dekh sakte hain, public nahi hota.
+            </div>
           </div>
           {error && <div className="auth-error">{error}</div>}
           <div className="modal-actions">
             <button className="btn btn-secondary btn-md" onClick={onClose}>Cancel</button>
-            <button className="btn btn-primary btn-md" disabled={loading} onClick={handleSave}>
+            <button className="btn btn-primary btn-md" disabled={loading} onClick={save}>
               {loading ? 'Saving...' : 'Save Recording'}
             </button>
           </div>
@@ -68,32 +68,30 @@ function AddRecordingModal({ cls, onClose, onSave }) {
 }
 
 // ── Schedule Class Modal ──────────────────────────────────────────
-function AddClassModal({ courses, onClose, onSave }) {
+function ScheduleModal({ courses, onClose, onSave }) {
   const [form, setForm] = useState({
-    course_id: '', title: '', subject: '', teacher_name: 'Disha Faculty',
-    scheduled_at: '', duration_min: 90
+    course_id:'', title:'', subject:'', teacher_name:'Disha Faculty',
+    scheduled_at:'', duration_min:90
   })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError]     = useState('')
   const set = k => e => setForm({ ...form, [k]: e.target.value })
-  const SUBJECTS = ['Mathematics', 'Reasoning', 'English', 'General Studies']
+  const SUBJECTS = ['Mathematics','Reasoning','English','General Studies']
 
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault()
-    if (!form.course_id || !form.title || !form.subject || !form.scheduled_at)
+    if (!form.course_id||!form.title||!form.subject||!form.scheduled_at)
       return setError('Course, Title, Subject aur Time required hain')
     setLoading(true)
     try {
-      const res = await authFetch(`${BASE_URL}/admin/live-classes`, {
-        method: 'POST',
-        body: JSON.stringify({ ...form, duration_min: parseInt(form.duration_min) })
+      const res  = await authFetch(`${BASE_URL}/admin/live-classes`, {
+        method:'POST', body: JSON.stringify({ ...form, duration_min: parseInt(form.duration_min) })
       })
       const data = await res.json()
       if (!data.success) throw new Error(data.message)
       onSave(); onClose()
-    } catch (err) {
-      setError(err.message)
-    } finally { setLoading(false) }
+    } catch (err) { setError(err.message) }
+    finally      { setLoading(false) }
   }
 
   return (
@@ -103,7 +101,7 @@ function AddClassModal({ courses, onClose, onSave }) {
           <h2>Live Class Schedule Karo</h2>
           <button className="modal-close" onClick={onClose}><X size={18} /></button>
         </div>
-        <form onSubmit={handleSubmit} className="modal-form">
+        <form onSubmit={submit} className="modal-form">
           <div className="modal-field">
             <label>Course *</label>
             <select className="modal-input" value={form.course_id} onChange={set('course_id')}>
@@ -137,13 +135,20 @@ function AddClassModal({ courses, onClose, onSave }) {
             </div>
             <div className="modal-field">
               <label>Duration (minutes)</label>
-              <input className="modal-input" type="number" value={form.duration_min} onChange={set('duration_min')} />
+              <input className="modal-input" type="number"
+                value={form.duration_min} onChange={set('duration_min')} />
             </div>
           </div>
+
+          {/* Daily.co info */}
           <div className="live-class-info">
-            <Video size={14} />
-            <span>Class Jitsi Meet ke through platform pe host hogi — sirf enrolled students join kar sakte hain ✅</span>
+            <Video size={14} style={{ flexShrink:0 }} />
+            <div>
+              Class <strong>Daily.co</strong> ke through platform pe host hogi (completely free, no time limits).
+              Daily.co dashboard mein room already banaya hua hai — students seedha join kar sakte hain. ✅
+            </div>
           </div>
+
           {error && <div className="auth-error">{error}</div>}
           <div className="modal-actions">
             <button type="button" className="btn btn-secondary btn-md" onClick={onClose}>Cancel</button>
@@ -159,13 +164,14 @@ function AddClassModal({ courses, onClose, onSave }) {
 
 // ── Main Page ─────────────────────────────────────────────────────
 export default function AdminLiveClass() {
-  const [classes, setClasses] = useState([])
-  const [courses, setCourses] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [showModal, setShowModal] = useState(false)
-  const [recordModal, setRecordModal] = useState(null)
+  const [classes, setClasses]         = useState([])
+  const [courses, setCourses]         = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [showSchedule, setShowSchedule] = useState(false)
+  const [recordModal,  setRecordModal]  = useState(null)
 
   const load = async () => {
+    setLoading(true)
     try {
       const [r1, r2] = await Promise.all([
         authFetch(`${BASE_URL}/admin/live-classes`),
@@ -180,65 +186,106 @@ export default function AdminLiveClass() {
 
   useEffect(() => { load() }, [])
 
-  const setLive = async (id) => {
-    await authFetch(`${BASE_URL}/admin/live-classes/${id}/start`, { method: 'POST' })
-    load()
-  }
-  const endClass = async (id) => {
-    await authFetch(`${BASE_URL}/admin/live-classes/${id}/end`, { method: 'POST' })
-    load()
-  }
-  const deleteClass = async (id) => {
-    if (!window.confirm('Class delete karo?')) return
-    await authFetch(`${BASE_URL}/admin/live-classes/${id}`, { method: 'DELETE' })
+  const setLive  = async id => { await authFetch(`${BASE_URL}/admin/live-classes/${id}/start`, { method:'POST' }); load() }
+  const endCls   = async id => { await authFetch(`${BASE_URL}/admin/live-classes/${id}/end`,   { method:'POST' }); load() }
+  const deleteCls = async id => {
+    if (!window.confirm('Class delete karni hai?')) return
+    await authFetch(`${BASE_URL}/admin/live-classes/${id}`, { method:'DELETE' })
     load()
   }
 
-  const fmt = (iso) => iso ? new Date(iso).toLocaleString('en-IN', {
-    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+  const fmt = iso => iso ? new Date(iso).toLocaleString('en-IN',{
+    day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'
   }) : ''
 
+  const live     = classes.filter(c => c.status === 'live')
   const upcoming = classes.filter(c => c.status === 'scheduled')
-  const live = classes.filter(c => c.status === 'live')
-  const ended = classes.filter(c => c.status === 'ended')
+  const ended    = classes.filter(c => c.status === 'ended')
 
   return (
     <div className="dashboard-page container fade-up">
-      {showModal && <AddClassModal courses={courses} onClose={() => setShowModal(false)} onSave={load} />}
-      {recordModal && <AddRecordingModal cls={recordModal} onClose={() => setRecordModal(null)} onSave={load} />}
+      {showSchedule && (
+        <ScheduleModal courses={courses}
+          onClose={() => setShowSchedule(false)} onSave={load} />
+      )}
+      {recordModal && (
+        <RecordingModal cls={recordModal}
+          onClose={() => setRecordModal(null)} onSave={load} />
+      )}
 
+      {/* Header */}
       <div className="dashboard-header">
         <div>
           <h1 className="page-title">Live Classes</h1>
           <p className="page-sub">Schedule, manage aur recordings add karo</p>
         </div>
-        <button className="btn btn-primary btn-md" onClick={() => setShowModal(true)}>
+        <button className="btn btn-primary btn-md" onClick={() => setShowSchedule(true)}>
           <Plus size={16} /> Schedule Class
         </button>
       </div>
 
-      {/* How it works */}
+      {/* Setup Guide */}
       <div className="how-it-works">
-        <h3>📡 Kaise kaam karta hai?</h3>
+        <h3>🎥 Teacher Live Class kaise lega — Daily.co Setup</h3>
         <div className="how-steps">
-          <div className="how-step"><div className="how-num">1</div><div>Class schedule karo — Subject, Topic, Course, Time set karo</div></div>
-          <div className="how-step"><div className="how-num">2</div><div>Time pe <strong>Start</strong> dabao → class LIVE ho jaati hai</div></div>
-          <div className="how-step"><div className="how-num">3</div><div>Students dashboard pe Join button dikhta hai — platform ke andar Jitsi se class hoti hai</div></div>
-          <div className="how-step"><div className="how-num">4</div><div>Class ke baad <strong>End</strong> dabao → Recording URL add karo → students recorded lecture dekh sakte hain</div></div>
+          <div className="how-step">
+            <div className="how-num">1</div>
+            <div>
+              <strong>daily.co</strong> pe free account banao →
+              Dashboard mein <strong>Rooms</strong> → Room name wahi rakho jo yahan diya hai (stream_url)
+            </div>
+          </div>
+          <div className="how-step">
+            <div className="how-num">2</div>
+            <div>
+              Class schedule karo yahan se — Course, Subject, Topic, Time sab set karo
+            </div>
+          </div>
+          <div className="how-step">
+            <div className="how-num">3</div>
+            <div>
+              Class time pe <strong>Start</strong> dabao → class LIVE ho jaati hai →
+              Students ko Join button dikhta hai
+            </div>
+          </div>
+          <div className="how-step">
+            <div className="how-num">4</div>
+            <div>
+              Teacher Daily.co dashboard se ya platform pe jaake class join kare →
+              Class khatam → <strong>End</strong> dabao → Recording URL add karo
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginTop:'1rem', padding:'12px', background:'var(--accent-dim)',
+          borderRadius:'8px', fontSize:'13px', color:'var(--text-secondary)' }}>
+          💡 <strong>Daily.co Free Plan:</strong> Unlimited participants, unlimited time,
+          200 minutes/month total recording. <strong>Har mahine 200 minute recording free</strong> — 
+          usse zyada ho toh YouTube pe upload karke link add karo.
+          <a href="https://dashboard.daily.co" target="_blank" rel="noreferrer"
+            style={{ color:'var(--accent)', marginLeft:'8px' }}>
+            Daily.co Dashboard →
+          </a>
         </div>
       </div>
 
-      {loading && <div style={{ padding: '2rem', color: 'var(--text-secondary)' }}>Loading...</div>}
+      {loading && (
+        <div style={{ padding:'2rem', color:'var(--text-secondary)', textAlign:'center' }}>
+          Loading...
+        </div>
+      )}
 
-      {/* LIVE NOW */}
+      {/* 🔴 LIVE NOW */}
       {live.length > 0 && (
-        <div className="card" style={{ marginTop: '1.5rem', border: '1px solid rgba(239,68,68,0.3)' }}>
+        <div className="card" style={{ marginTop:'1.5rem', borderColor:'rgba(239,68,68,0.3)' }}>
           <div className="section-head">
-            <h2 className="section-heading" style={{ color: 'var(--red)' }}>🔴 Live Now ({live.length})</h2>
+            <h2 className="section-heading" style={{ color:'var(--red)' }}>
+              🔴 Live Now ({live.length})
+            </h2>
           </div>
           {live.map(cls => (
-            <div key={cls.id} className="class-item class-live" style={{ marginBottom: '8px' }}>
-              <div className="class-info" style={{ flex: 1 }}>
+            <div key={cls.id} className="class-item class-live" style={{ marginBottom:'8px' }}>
+              <div className="class-info" style={{ flex:1 }}>
                 <div className="class-top">
                   <span className="class-subject">{cls.subject}</span>
                   <Badge color="red">🔴 LIVE</Badge>
@@ -246,16 +293,13 @@ export default function AdminLiveClass() {
                 <p className="class-topic">{cls.title}</p>
                 <p className="class-teacher">{cls.teacher_name} · {cls.course_title}</p>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                {/* 🔥 NEW BUTTON (IMPORTANT) */}
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={() => window.open(`/live`, '_blank')}
-                >
-                  <Play size={13} /> Enter Class
-                </button>
-
-                <button className="btn btn-danger btn-sm" onClick={() => endClass(cls.id)}>
+              <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+                <a href={`https://disha-academy.daily.co/${cls.stream_url}`}
+                  target="_blank" rel="noreferrer"
+                  className="btn btn-secondary btn-sm">
+                  <ExternalLink size={13} /> Daily.co Join
+                </a>
+                <button className="btn btn-danger btn-sm" onClick={() => endCls(cls.id)}>
                   <Square size={13} /> End Class
                 </button>
               </div>
@@ -265,68 +309,78 @@ export default function AdminLiveClass() {
       )}
 
       {/* UPCOMING */}
-      <div className="card" style={{ marginTop: '1.5rem' }}>
+      <div className="card" style={{ marginTop:'1.5rem' }}>
         <div className="section-head">
-          <h2 className="section-heading">Upcoming Classes ({upcoming.length})</h2>
+          <h2 className="section-heading">Upcoming ({upcoming.length})</h2>
         </div>
-        {upcoming.length === 0
-          ? <div style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Koi upcoming class nahi.</div>
-          : upcoming.map(cls => (
-            <div key={cls.id} className="class-item" style={{ marginBottom: '8px' }}>
-              <div className="class-info" style={{ flex: 1 }}>
-                <div className="class-top">
-                  <span className="class-subject">{cls.subject}</span>
-                  <Badge color="gray">{fmt(cls.scheduled_at)}</Badge>
-                </div>
-                <p className="class-topic">{cls.title}</p>
-                <p className="class-teacher">{cls.teacher_name} · {cls.course_title}</p>
+        {upcoming.length === 0 ? (
+          <div style={{ padding:'1.5rem', color:'var(--text-secondary)', textAlign:'center' }}>
+            Koi upcoming class nahi. Schedule karo! 👆
+          </div>
+        ) : upcoming.map(cls => (
+          <div key={cls.id} className="class-item" style={{ marginBottom:'8px' }}>
+            <div className="class-info" style={{ flex:1 }}>
+              <div className="class-top">
+                <span className="class-subject">{cls.subject}</span>
+                <Badge color="gray">{fmt(cls.scheduled_at)}</Badge>
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <button className="btn btn-primary btn-sm" onClick={() => setLive(cls.id)}>
-                  <Play size={13} /> Start Now
-                </button>
-                <button className="icon-action icon-action-danger" onClick={() => deleteClass(cls.id)}>
-                  <Trash2 size={14} />
-                </button>
-              </div>
+              <p className="class-topic">{cls.title}</p>
+              <p className="class-teacher">{cls.teacher_name} · {cls.course_title}</p>
+              <p style={{ fontSize:'11px', color:'var(--text-tertiary)', marginTop:'2px' }}>
+                Room: <code style={{ background:'var(--bg-elevated)', padding:'1px 6px', borderRadius:'4px' }}>
+                  {cls.stream_url}
+                </code>
+              </p>
             </div>
-          ))}
+            <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+              <button className="btn btn-primary btn-sm" onClick={() => setLive(cls.id)}>
+                <Play size={13} /> Start Now
+              </button>
+              <button className="icon-action icon-action-danger" onClick={() => deleteCls(cls.id)}>
+                <Trash2 size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* ENDED — with recording */}
-      <div className="card" style={{ marginTop: '1.5rem' }}>
+      {/* ENDED + RECORDINGS */}
+      <div className="card" style={{ marginTop:'1.5rem' }}>
         <div className="section-head">
           <h2 className="section-heading">Ended Classes — Recordings ({ended.length})</h2>
         </div>
-        {ended.length === 0
-          ? <div style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Abhi koi ended class nahi.</div>
-          : ended.map(cls => (
-            <div key={cls.id} className="class-item" style={{ marginBottom: '8px' }}>
-              <div className="class-info" style={{ flex: 1 }}>
-                <div className="class-top">
-                  <span className="class-subject">{cls.subject}</span>
-                  <Badge color="green">Ended</Badge>
-                  {cls.recording_url && <Badge color="blue">📹 Recording Added</Badge>}
-                </div>
-                <p className="class-topic">{cls.title}</p>
-                <p className="class-teacher">{cls.teacher_name} · {fmt(cls.scheduled_at)}</p>
-                {cls.recording_url && (
-                  <a href={cls.recording_url} target="_blank" rel="noreferrer"
-                    style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px', display: 'block' }}>
-                    🔗 Recording link dekho
-                  </a>
-                )}
+        {ended.length === 0 ? (
+          <div style={{ padding:'1.5rem', color:'var(--text-secondary)', textAlign:'center' }}>
+            Abhi koi ended class nahi.
+          </div>
+        ) : ended.map(cls => (
+          <div key={cls.id} className="class-item" style={{ marginBottom:'8px' }}>
+            <div className="class-info" style={{ flex:1 }}>
+              <div className="class-top">
+                <span className="class-subject">{cls.subject}</span>
+                <Badge color="green">Ended</Badge>
+                {cls.recording_url && <Badge color="blue">📹 Recording Added</Badge>}
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <button className="btn btn-secondary btn-sm" onClick={() => setRecordModal(cls)}>
-                  <Upload size={13} /> {cls.recording_url ? 'Update Recording' : 'Add Recording'}
-                </button>
-                <button className="icon-action icon-action-danger" onClick={() => deleteClass(cls.id)}>
-                  <Trash2 size={14} />
-                </button>
-              </div>
+              <p className="class-topic">{cls.title}</p>
+              <p className="class-teacher">{cls.teacher_name} · {fmt(cls.scheduled_at)}</p>
+              {cls.recording_url && (
+                <a href={cls.recording_url} target="_blank" rel="noreferrer"
+                  style={{ fontSize:'12px', color:'var(--accent)', marginTop:'4px', display:'block' }}>
+                  🔗 Recording dekho
+                </a>
+              )}
             </div>
-          ))}
+            <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+              <button className="btn btn-secondary btn-sm" onClick={() => setRecordModal(cls)}>
+                <Upload size={13} />
+                {cls.recording_url ? ' Update' : ' Add Recording'}
+              </button>
+              <button className="icon-action icon-action-danger" onClick={() => deleteCls(cls.id)}>
+                <Trash2 size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )

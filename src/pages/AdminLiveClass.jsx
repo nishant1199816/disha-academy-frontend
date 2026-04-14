@@ -11,6 +11,34 @@ const authFetch = (url, opts = {}) => fetch(url, {
   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}`, ...opts.headers }
 })
 
+// IST datetime-local value banana — input ke liye
+function toISTLocal(date = new Date()) {
+  const ist = new Date(date.getTime() + 5.5 * 60 * 60 * 1000)
+  return ist.toISOString().slice(0, 16)
+}
+
+// IST datetime-local input se UTC ISO string banana — backend ke liye
+function fromISTLocal(localStr) {
+  if (!localStr) return ''
+  // localStr = "2025-04-15T07:30" — treat as IST
+  const [date, time] = localStr.split('T')
+  const [y, m, d] = date.split('-').map(Number)
+  const [h, min] = time.split(':').map(Number)
+  // IST = UTC + 5:30, so UTC = IST - 5:30
+  const utc = new Date(Date.UTC(y, m - 1, d, h - 5, min - 30))
+  return utc.toISOString()
+}
+
+// Display ke liye IST format
+function fmtIST(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleString('en-IN', {
+    day: 'numeric', month: 'short',
+    hour: '2-digit', minute: '2-digit',
+    timeZone: 'Asia/Kolkata'
+  })
+}
+
 // ── Recording Modal ───────────────────────────────────────────────
 function RecordingModal({ cls, onClose, onSave }) {
   const [url, setUrl] = useState(cls.recording_url || '')
@@ -71,7 +99,7 @@ function RecordingModal({ cls, onClose, onSave }) {
 function ScheduleModal({ courses, onClose, onSave }) {
   const [form, setForm] = useState({
     course_id: '', title: '', subject: '', teacher_name: 'Disha Faculty',
-    scheduled_at: '', duration_min: 90, meeting_url: ''
+    scheduled_at: toISTLocal(), duration_min: 90, meeting_url: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -82,10 +110,18 @@ function ScheduleModal({ courses, onClose, onSave }) {
     e.preventDefault()
     if (!form.course_id || !form.title || !form.subject || !form.scheduled_at)
       return setError('Course, Title, Subject aur Time required hain')
+    if (!form.meeting_url.trim())
+      return setError('Google Meet link daalna zaroori hai')
     setLoading(true)
     try {
+      // Convert IST input to UTC for backend
+      const payload = {
+        ...form,
+        scheduled_at: fromISTLocal(form.scheduled_at),
+        duration_min: parseInt(form.duration_min)
+      }
       const res = await authFetch(`${BASE_URL}/admin/live-classes`, {
-        method: 'POST', body: JSON.stringify({ ...form, duration_min: parseInt(form.duration_min) })
+        method: 'POST', body: JSON.stringify(payload)
       })
       const data = await res.json()
       if (!data.success) throw new Error(data.message)
@@ -129,9 +165,12 @@ function ScheduleModal({ courses, onClose, onSave }) {
           </div>
           <div className="modal-row">
             <div className="modal-field">
-              <label>Date & Time *</label>
+              <label>Date & Time * (IST)</label>
               <input className="modal-input" type="datetime-local"
                 value={form.scheduled_at} onChange={set('scheduled_at')} />
+              <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+                ✅ IST (India Standard Time) mein enter karo
+              </div>
             </div>
             <div className="modal-field">
               <label>Duration (minutes)</label>
@@ -139,14 +178,20 @@ function ScheduleModal({ courses, onClose, onSave }) {
                 value={form.duration_min} onChange={set('duration_min')} />
             </div>
           </div>
+
+          {/* Google Meet Link */}
           <div className="modal-field">
-            <label>Meeting Link (Zoom / Google Meet)</label>
+            <label>Google Meet Link *</label>
             <input
               className="modal-input"
-              placeholder="https://meet.google.com/xxx-xxx-xxx"
+              placeholder="https://meet.google.com/xxx-xxxx-xxx"
               value={form.meeting_url}
               onChange={set('meeting_url')}
             />
+            <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '6px', lineHeight: '1.5' }}>
+              💡 <strong>Kaise banayein:</strong> meet.google.com → New Meeting → Copy link yahan paste karo.<br/>
+              Students class website ke andar hi embedded view mein join karenge.
+            </div>
           </div>
 
           {error && <div className="auth-error">{error}</div>}
@@ -193,17 +238,6 @@ export default function AdminLiveClass() {
     await authFetch(`${BASE_URL}/admin/live-classes/${id}`, { method: 'DELETE' })
     load()
   }
-  const fmtDate = iso => iso
-  ? new Date(iso).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      timeZone: 'Asia/Kolkata'   // 🔥 ADD THIS
-    })
-  : ''
-
-  // const fmt = iso => iso ? new Date(iso).toLocaleString('en-IN', {
-  //   day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-  // }) : ''
 
   const live = classes.filter(c => c.status === 'live')
   const upcoming = classes.filter(c => c.status === 'scheduled')
@@ -233,42 +267,30 @@ export default function AdminLiveClass() {
 
       {/* Setup Guide */}
       <div className="how-it-works">
-        <h3>🎥 Teacher Live Class by using — zoom / Google Meet</h3>
+        <h3>🎥 Google Meet se Live Class — Kaise kaam karta hai</h3>
         <div className="how-steps">
           <div className="how-step">
             <div className="how-num">1</div>
-            <div>
-              Teacher Google Meet / Zoom pe meeting create kare
-            </div>
+            <div>meet.google.com pe jao → <strong>New Meeting</strong> → link copy karo</div>
           </div>
-
           <div className="how-step">
             <div className="how-num">2</div>
-            <div>
-              Meeting ka link yahan paste karo jab class schedule karo
-            </div>
+            <div>Woh link yahan paste karke class <strong>schedule karo</strong> (IST time daalo)</div>
           </div>
-
           <div className="how-step">
             <div className="how-num">3</div>
-            <div>
-              Class time pe <strong>Start</strong> dabao → students ko join button milega
-            </div>
+            <div>Class time pe <strong>Start</strong> dabao → students ko website pe Join button milega</div>
           </div>
-
           <div className="how-step">
             <div className="how-num">4</div>
-            <div>
-              Class khatam hone ke baad recording link add karo
-            </div>
+            <div>Class khatam → <strong>End</strong> dabao → recording URL add karo</div>
           </div>
         </div>
-
         <div style={{
-          marginTop: '1rem', padding: '12px', background: 'var(--accent-dim)',
-          borderRadius: '8px', fontSize: '13px', color: 'var(--text-secondary)'
+          marginTop: '1rem', padding: '10px 14px', background: 'var(--accent-dim)',
+          borderRadius: '8px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6'
         }}>
-          💡 Teacher Google Meet ya Zoom link paste kare — students direct join kar sakte hain.
+          ✅ Students website ke andar embedded Google Meet mein class join karenge — bahar nahi jaana padega.
         </div>
       </div>
 
@@ -297,14 +319,6 @@ export default function AdminLiveClass() {
                 <p className="class-teacher">{cls.teacher_name} · {cls.course_title}</p>
               </div>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <a
-                  href={cls.meeting_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn btn-primary btn-sm"
-                >
-                  <ExternalLink size={13} /> Join Class
-                </a>
                 <button className="btn btn-danger btn-sm" onClick={() => endCls(cls.id)}>
                   <Square size={13} /> End Class
                 </button>
@@ -328,16 +342,15 @@ export default function AdminLiveClass() {
             <div className="class-info" style={{ flex: 1 }}>
               <div className="class-top">
                 <span className="class-subject">{cls.subject}</span>
-                <Badge color="gray">{fmt(cls.scheduled_at)}</Badge>
+                <Badge color="gray">{fmtIST(cls.scheduled_at)}</Badge>
               </div>
               <p className="class-topic">{cls.title}</p>
               <p className="class-teacher">{cls.teacher_name} · {cls.course_title}</p>
               {cls.meeting_url && (
-                <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>
-                  Meeting Link Available
+                <p style={{ fontSize: '11px', color: 'var(--green)', marginTop: '2px' }}>
+                  ✅ Meet link ready
                 </p>
               )}
-
             </div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <button className="btn btn-primary btn-sm" onClick={() => setLive(cls.id)}>
@@ -369,7 +382,7 @@ export default function AdminLiveClass() {
                 {cls.recording_url && <Badge color="blue">📹 Recording Added</Badge>}
               </div>
               <p className="class-topic">{cls.title}</p>
-              <p className="class-teacher">{cls.teacher_name} · {fmt(cls.scheduled_at)}</p>
+              <p className="class-teacher">{cls.teacher_name} · {fmtIST(cls.scheduled_at)}</p>
               {cls.recording_url && (
                 <a href={cls.recording_url} target="_blank" rel="noreferrer"
                   style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px', display: 'block' }}>

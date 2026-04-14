@@ -5,23 +5,23 @@ import './dashboard.css'
 import './admin.css'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-const getToken  = () => localStorage.getItem('edtech_token')
-const authFetch = (url, opts={}) => fetch(url, {
+const getToken = () => localStorage.getItem('edtech_token')
+const authFetch = (url, opts = {}) => fetch(url, {
   ...opts,
-  headers: { 'Content-Type':'application/json', Authorization:`Bearer ${getToken()}`, ...opts.headers }
+  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}`, ...opts.headers }
 })
 
 // ── Add Recording Modal ───────────────────────────────────────────
 function AddRecordingModal({ cls, onClose, onSave }) {
-  const [url, setUrl]         = useState(cls.recording_url || '')
+  const [url, setUrl] = useState(cls.recording_url || '')
   const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState('')
+  const [error, setError] = useState('')
 
   const handleSave = async () => {
     if (!url.trim()) return setError('Recording URL dalo')
     setLoading(true)
     try {
-      const res  = await authFetch(`${BASE_URL}/admin/live-classes/${cls.id}/recording`, {
+      const res = await authFetch(`${BASE_URL}/admin/live-classes/${cls.id}/recording`, {
         method: 'POST',
         body: JSON.stringify({ recording_url: url.trim() })
       })
@@ -37,7 +37,7 @@ function AddRecordingModal({ cls, onClose, onSave }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" style={{ maxWidth:'460px' }} onClick={e => e.stopPropagation()}>
+      <div className="modal-card" style={{ maxWidth: '460px' }} onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Recording Add Karo</h2>
           <button className="modal-close" onClick={onClose}><X size={18} /></button>
@@ -50,7 +50,7 @@ function AddRecordingModal({ cls, onClose, onSave }) {
             <label>Recording Video URL *</label>
             <input className="modal-input" placeholder="https://youtube.com/... ya Drive link"
               value={url} onChange={e => setUrl(e.target.value)} />
-            <span style={{ fontSize:'12px', color:'var(--text-tertiary)', marginTop:'4px' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
               YouTube unlisted link, Google Drive link, ya koi bhi video URL
             </span>
           </div>
@@ -70,13 +70,13 @@ function AddRecordingModal({ cls, onClose, onSave }) {
 // ── Schedule Class Modal ──────────────────────────────────────────
 function AddClassModal({ courses, onClose, onSave }) {
   const [form, setForm] = useState({
-    course_id:'', title:'', subject:'', teacher_name:'Disha Faculty',
-    scheduled_at:'', duration_min:90
+    course_id: '', title: '', subject: '', teacher_name: 'Disha Faculty',
+    scheduled_at: '', duration_min: 90
   })
   const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState('')
+  const [error, setError] = useState('')
   const set = k => e => setForm({ ...form, [k]: e.target.value })
-  const SUBJECTS = ['Mathematics','Reasoning','English','General Studies']
+  const SUBJECTS = ['Mathematics', 'Reasoning', 'English', 'General Studies']
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -84,7 +84,7 @@ function AddClassModal({ courses, onClose, onSave }) {
       return setError('Course, Title, Subject aur Time required hain')
     setLoading(true)
     try {
-      const res  = await authFetch(`${BASE_URL}/admin/live-classes`, {
+      const res = await authFetch(`${BASE_URL}/admin/live-classes`, {
         method: 'POST',
         body: JSON.stringify({ ...form, duration_min: parseInt(form.duration_min) })
       })
@@ -159,10 +159,10 @@ function AddClassModal({ courses, onClose, onSave }) {
 
 // ── Main Page ─────────────────────────────────────────────────────
 export default function AdminLiveClass() {
-  const [classes, setClasses]         = useState([])
-  const [courses, setCourses]         = useState([])
-  const [loading, setLoading]         = useState(true)
-  const [showModal, setShowModal]     = useState(false)
+  const [classes, setClasses] = useState([])
+  const [courses, setCourses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
   const [recordModal, setRecordModal] = useState(null)
 
   const load = async () => {
@@ -181,30 +181,30 @@ export default function AdminLiveClass() {
   useEffect(() => { load() }, [])
 
   const setLive = async (id) => {
-    await authFetch(`${BASE_URL}/admin/live-classes/${id}/start`, { method:'POST' })
+    await authFetch(`${BASE_URL}/admin/live-classes/${id}/start`, { method: 'POST' })
     load()
   }
   const endClass = async (id) => {
-    await authFetch(`${BASE_URL}/admin/live-classes/${id}/end`, { method:'POST' })
+    await authFetch(`${BASE_URL}/admin/live-classes/${id}/end`, { method: 'POST' })
     load()
   }
   const deleteClass = async (id) => {
     if (!window.confirm('Class delete karo?')) return
-    await authFetch(`${BASE_URL}/admin/live-classes/${id}`, { method:'DELETE' })
+    await authFetch(`${BASE_URL}/admin/live-classes/${id}`, { method: 'DELETE' })
     load()
   }
 
-  const fmt = (iso) => iso ? new Date(iso).toLocaleString('en-IN',{
-    day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'
+  const fmt = (iso) => iso ? new Date(iso).toLocaleString('en-IN', {
+    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
   }) : ''
 
   const upcoming = classes.filter(c => c.status === 'scheduled')
-  const live     = classes.filter(c => c.status === 'live')
-  const ended    = classes.filter(c => c.status === 'ended')
+  const live = classes.filter(c => c.status === 'live')
+  const ended = classes.filter(c => c.status === 'ended')
 
   return (
     <div className="dashboard-page container fade-up">
-      {showModal   && <AddClassModal courses={courses} onClose={() => setShowModal(false)} onSave={load} />}
+      {showModal && <AddClassModal courses={courses} onClose={() => setShowModal(false)} onSave={load} />}
       {recordModal && <AddRecordingModal cls={recordModal} onClose={() => setRecordModal(null)} onSave={load} />}
 
       <div className="dashboard-header">
@@ -228,17 +228,17 @@ export default function AdminLiveClass() {
         </div>
       </div>
 
-      {loading && <div style={{ padding:'2rem', color:'var(--text-secondary)' }}>Loading...</div>}
+      {loading && <div style={{ padding: '2rem', color: 'var(--text-secondary)' }}>Loading...</div>}
 
       {/* LIVE NOW */}
       {live.length > 0 && (
-        <div className="card" style={{ marginTop:'1.5rem', border:'1px solid rgba(239,68,68,0.3)' }}>
+        <div className="card" style={{ marginTop: '1.5rem', border: '1px solid rgba(239,68,68,0.3)' }}>
           <div className="section-head">
-            <h2 className="section-heading" style={{ color:'var(--red)' }}>🔴 Live Now ({live.length})</h2>
+            <h2 className="section-heading" style={{ color: 'var(--red)' }}>🔴 Live Now ({live.length})</h2>
           </div>
           {live.map(cls => (
-            <div key={cls.id} className="class-item class-live" style={{ marginBottom:'8px' }}>
-              <div className="class-info" style={{ flex:1 }}>
+            <div key={cls.id} className="class-item class-live" style={{ marginBottom: '8px' }}>
+              <div className="class-info" style={{ flex: 1 }}>
                 <div className="class-top">
                   <span className="class-subject">{cls.subject}</span>
                   <Badge color="red">🔴 LIVE</Badge>
@@ -246,7 +246,15 @@ export default function AdminLiveClass() {
                 <p className="class-topic">{cls.title}</p>
                 <p className="class-teacher">{cls.teacher_name} · {cls.course_title}</p>
               </div>
-              <div style={{ display:'flex', gap:'8px' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {/* 🔥 NEW BUTTON (IMPORTANT) */}
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => window.open(`/live`, '_blank')}
+                >
+                  <Play size={13} /> Enter Class
+                </button>
+
                 <button className="btn btn-danger btn-sm" onClick={() => endClass(cls.id)}>
                   <Square size={13} /> End Class
                 </button>
@@ -257,68 +265,68 @@ export default function AdminLiveClass() {
       )}
 
       {/* UPCOMING */}
-      <div className="card" style={{ marginTop:'1.5rem' }}>
+      <div className="card" style={{ marginTop: '1.5rem' }}>
         <div className="section-head">
           <h2 className="section-heading">Upcoming Classes ({upcoming.length})</h2>
         </div>
         {upcoming.length === 0
-          ? <div style={{ padding:'1rem', color:'var(--text-secondary)' }}>Koi upcoming class nahi.</div>
+          ? <div style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Koi upcoming class nahi.</div>
           : upcoming.map(cls => (
-          <div key={cls.id} className="class-item" style={{ marginBottom:'8px' }}>
-            <div className="class-info" style={{ flex:1 }}>
-              <div className="class-top">
-                <span className="class-subject">{cls.subject}</span>
-                <Badge color="gray">{fmt(cls.scheduled_at)}</Badge>
+            <div key={cls.id} className="class-item" style={{ marginBottom: '8px' }}>
+              <div className="class-info" style={{ flex: 1 }}>
+                <div className="class-top">
+                  <span className="class-subject">{cls.subject}</span>
+                  <Badge color="gray">{fmt(cls.scheduled_at)}</Badge>
+                </div>
+                <p className="class-topic">{cls.title}</p>
+                <p className="class-teacher">{cls.teacher_name} · {cls.course_title}</p>
               </div>
-              <p className="class-topic">{cls.title}</p>
-              <p className="class-teacher">{cls.teacher_name} · {cls.course_title}</p>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button className="btn btn-primary btn-sm" onClick={() => setLive(cls.id)}>
+                  <Play size={13} /> Start Now
+                </button>
+                <button className="icon-action icon-action-danger" onClick={() => deleteClass(cls.id)}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
-            <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
-              <button className="btn btn-primary btn-sm" onClick={() => setLive(cls.id)}>
-                <Play size={13} /> Start Now
-              </button>
-              <button className="icon-action icon-action-danger" onClick={() => deleteClass(cls.id)}>
-                <Trash2 size={14} />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {/* ENDED — with recording */}
-      <div className="card" style={{ marginTop:'1.5rem' }}>
+      <div className="card" style={{ marginTop: '1.5rem' }}>
         <div className="section-head">
           <h2 className="section-heading">Ended Classes — Recordings ({ended.length})</h2>
         </div>
         {ended.length === 0
-          ? <div style={{ padding:'1rem', color:'var(--text-secondary)' }}>Abhi koi ended class nahi.</div>
+          ? <div style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Abhi koi ended class nahi.</div>
           : ended.map(cls => (
-          <div key={cls.id} className="class-item" style={{ marginBottom:'8px' }}>
-            <div className="class-info" style={{ flex:1 }}>
-              <div className="class-top">
-                <span className="class-subject">{cls.subject}</span>
-                <Badge color="green">Ended</Badge>
-                {cls.recording_url && <Badge color="blue">📹 Recording Added</Badge>}
+            <div key={cls.id} className="class-item" style={{ marginBottom: '8px' }}>
+              <div className="class-info" style={{ flex: 1 }}>
+                <div className="class-top">
+                  <span className="class-subject">{cls.subject}</span>
+                  <Badge color="green">Ended</Badge>
+                  {cls.recording_url && <Badge color="blue">📹 Recording Added</Badge>}
+                </div>
+                <p className="class-topic">{cls.title}</p>
+                <p className="class-teacher">{cls.teacher_name} · {fmt(cls.scheduled_at)}</p>
+                {cls.recording_url && (
+                  <a href={cls.recording_url} target="_blank" rel="noreferrer"
+                    style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px', display: 'block' }}>
+                    🔗 Recording link dekho
+                  </a>
+                )}
               </div>
-              <p className="class-topic">{cls.title}</p>
-              <p className="class-teacher">{cls.teacher_name} · {fmt(cls.scheduled_at)}</p>
-              {cls.recording_url && (
-                <a href={cls.recording_url} target="_blank" rel="noreferrer"
-                  style={{ fontSize:'12px', color:'var(--accent)', marginTop:'4px', display:'block' }}>
-                  🔗 Recording link dekho
-                </a>
-              )}
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button className="btn btn-secondary btn-sm" onClick={() => setRecordModal(cls)}>
+                  <Upload size={13} /> {cls.recording_url ? 'Update Recording' : 'Add Recording'}
+                </button>
+                <button className="icon-action icon-action-danger" onClick={() => deleteClass(cls.id)}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
-            <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
-              <button className="btn btn-secondary btn-sm" onClick={() => setRecordModal(cls)}>
-                <Upload size={13} /> {cls.recording_url ? 'Update Recording' : 'Add Recording'}
-              </button>
-              <button className="icon-action icon-action-danger" onClick={() => deleteClass(cls.id)}>
-                <Trash2 size={14} />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   )

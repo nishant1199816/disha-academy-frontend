@@ -9,6 +9,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 export default function LiveClass() {
   const { user }  = useAuth()
+  const isTeacher = user?.role === 'admin' || user?.role === 'teacher'
   const navigate  = useNavigate()
   const jitsiRef  = useRef(null)
   const apiRef    = useRef(null)
@@ -19,8 +20,10 @@ export default function LiveClass() {
   const [loading, setLoading]   = useState(true)
   const [activeTab, setActiveTab] = useState('live')
 
-  const hasAccess = user?.enrollments?.length > 0 || user?.role === 'admin' || user?.role === 'teacher'
-
+const hasAccess =
+  user?.role === 'admin' ||
+  user?.role === 'teacher' ||
+  (user?.enrollments?.length > 0 && selected?.course_id)
   useEffect(() => {
     if (!user) return
     const token = localStorage.getItem('edtech_token')
@@ -62,7 +65,7 @@ export default function LiveClass() {
       if (!window.JitsiMeetExternalAPI || !jitsiRef.current) return
       if (apiRef.current) { apiRef.current.dispose(); apiRef.current = null }
 
-      const roomName = cls.stream_url || `disha-${cls.id}-${user.id}` 
+      const roomName = cls.stream_url || `disha-class${cls.id}` 
       apiRef.current = new window.JitsiMeetExternalAPI('meet.jit.si', {
         roomName,
         parentNode: jitsiRef.current,
@@ -70,8 +73,8 @@ export default function LiveClass() {
         height: '100%',
         userInfo: { displayName: user?.name, email: user?.email },
         configOverwrite: {
-          startWithAudioMuted: true,
-          startWithVideoMuted: true,
+          startWithAudioMuted: !isTeacher,
+          startWithVideoMuted: !isTeacher,
           disableDeepLinking:  true,
           prejoinPageEnabled:  false,
           toolbarButtons: ['microphone','camera','chat','raisehand','tileview','hangup'],

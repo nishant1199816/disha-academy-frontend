@@ -62,8 +62,7 @@ export default function LiveClass() {
       if (!window.JitsiMeetExternalAPI || !jitsiRef.current) return
       if (apiRef.current) { apiRef.current.dispose(); apiRef.current = null }
 
-      const roomName = `disha-${cls.id?.slice(0,8)}-${(cls.subject||'class').replace(/\s+/g,'').toLowerCase()}`
-
+      const roomName = cls.stream_url || `disha-${cls.id}-${user.id}` 
       apiRef.current = new window.JitsiMeetExternalAPI('meet.jit.si', {
         roomName,
         parentNode: jitsiRef.current,

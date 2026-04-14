@@ -9,8 +9,8 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 const PROGRESS = [
   { subject: 'Mathematics', done: 72, color: 'blue' },
-  { subject: 'Reasoning',   done: 58, color: 'accent' },
-  { subject: 'English',     done: 85, color: 'green' },
+  { subject: 'Reasoning', done: 58, color: 'accent' },
+  { subject: 'English', done: 85, color: 'green' },
 ]
 
 const getGreeting = () => {
@@ -22,7 +22,7 @@ const getGreeting = () => {
 
 export default function Dashboard() {
   const { user } = useAuth()
-  const [data, setData]       = useState(null)
+  const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function Dashboard() {
   }, [])
 
   const upcomingClasses = data?.upcoming_classes || []
-  const stats           = data?.stats || {}
+  const stats = data?.stats || {}
   const enrolledCourses = data?.courses || []
 
   const formatTime = (iso) => {
@@ -68,10 +68,10 @@ export default function Dashboard() {
 
       {/* Stats */}
       <div className="stats-grid">
-        <StatCard label="Classes Attended" value={String(stats.classes_attended || 0)} sub="total"          icon={<TrendingUp size={18} />} color="accent" />
-        <StatCard label="Courses Enrolled" value={String(stats.courses_enrolled || 0)} sub="active courses" icon={<BookOpen size={18} />}    color="blue" />
-        <StatCard label="Open Doubts"      value={String(stats.open_doubts || 0)}     sub="pending"         icon={<FileText size={18} />}    color="green" />
-        <StatCard label="Mock Tests"       value="6"                                   sub="avg. 71% score"  icon={<Zap size={18} />}         color="amber" />
+        <StatCard label="Classes Attended" value={String(stats.classes_attended || 0)} sub="total" icon={<TrendingUp size={18} />} color="accent" />
+        <StatCard label="Courses Enrolled" value={String(stats.courses_enrolled || 0)} sub="active courses" icon={<BookOpen size={18} />} color="blue" />
+        <StatCard label="Open Doubts" value={String(stats.open_doubts || 0)} sub="pending" icon={<FileText size={18} />} color="green" />
+        <StatCard label="Mock Tests" value="6" sub="avg. 71% score" icon={<Zap size={18} />} color="amber" />
       </div>
 
       <div className="dashboard-grid">
@@ -94,23 +94,40 @@ export default function Dashboard() {
               </div>
             ) : (
               upcomingClasses.map((c, i) => (
-                <div className={`class-item ${c.status === 'live' ? 'class-live' : ''}`} key={c.id || i}>
+                <div
+                  className={`class-item ${c.status === 'live' ? 'class-live' : ''}`}
+                  key={c.id || i}
+                >
                   <div className="class-subject-dot" />
+
                   <div className="class-info">
                     <div className="class-top">
                       <span className="class-subject">{c.subject}</span>
-                      {c.status === 'live'
-                        ? <Badge color="red">🔴 Live Now</Badge>
-                        : <Badge color="gray">{formatTime(c.scheduled_at)}</Badge>
-                      }
+
+                      {c.status === 'live' ? (
+                        <Badge color="red">🔴 Live Now</Badge>
+                      ) : (
+                        <Badge color="gray">{formatTime(c.scheduled_at)}</Badge>
+                      )}
                     </div>
+
                     <p className="class-topic">{c.title}</p>
                     <p className="class-teacher">{c.teacher_name}</p>
                   </div>
-                  {c.status === 'live'
-                    ? <Link to="/live" className="btn btn-primary btn-sm">Join</Link>
-                    : <button className="btn btn-secondary btn-sm">Remind</button>
-                  }
+
+                  {/* 🔥 YAHAN MAIN CHANGE HAI */}
+                  {c.status === 'live' ? (
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => window.location.href = '/live'}
+                    >
+                      Join
+                    </button>
+                  ) : (
+                    <button className="btn btn-secondary btn-sm">
+                      Remind
+                    </button>
+                  )}
                 </div>
               ))
             )}
@@ -161,10 +178,10 @@ export default function Dashboard() {
           <Card style={{ marginTop: '1rem' }}>
             <h2 className="section-heading" style={{ marginBottom: '1rem' }}>Quick Actions</h2>
             <div className="quick-actions">
-              <Link to="/live"    className="quick-btn"><Play size={16} /> Watch Live</Link>
+              <Link to="/live" className="quick-btn"><Play size={16} /> Watch Live</Link>
               <Link to="/courses" className="quick-btn"><BookOpen size={16} /> Browse</Link>
-              <Link to="/tests"   className="quick-btn"><Zap size={16} /> Take Test</Link>
-              <Link to="/doubts"  className="quick-btn"><FileText size={16} /> Post Doubt</Link>
+              <Link to="/tests" className="quick-btn"><Zap size={16} /> Take Test</Link>
+              <Link to="/doubts" className="quick-btn"><FileText size={16} /> Post Doubt</Link>
             </div>
           </Card>
 

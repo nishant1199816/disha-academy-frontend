@@ -5,7 +5,7 @@ import './dashboard.css'
 import './admin.css'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-const getToken  = () => localStorage.getItem('edtech_token')
+const getToken = () => localStorage.getItem('edtech_token')
 const authFetch = (url, opts = {}) => fetch(url, {
   ...opts,
   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}`, ...opts.headers }
@@ -24,8 +24,8 @@ const nowISTInput = () => {
 const istToUTC = (localVal) => {
   // localVal = "2025-04-15T14:30" — IST mein daala hai user ne
   const [date, time] = localVal.split('T')
-  const [y, m, d]   = date.split('-').map(Number)
-  const [h, min]    = time.split(':').map(Number)
+  const [y, m, d] = date.split('-').map(Number)
+  const [h, min] = time.split(':').map(Number)
   const istMs = Date.UTC(y, m - 1, d, h, min)
   const utcMs = istMs - 330 * 60000 // IST - 5:30 = UTC
   return new Date(utcMs).toISOString()
@@ -35,26 +35,26 @@ const istToUTC = (localVal) => {
 const fmtIST = (iso) => {
   if (!iso) return ''
   return new Date(iso).toLocaleString('en-IN', {
-    timeZone:  'Asia/Kolkata',
-    day:       '2-digit',
-    month:     'short',
-    hour:      '2-digit',
-    minute:    '2-digit',
-    hour12:    true
+    timeZone: 'Asia/Kolkata',
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
   }) + ' IST'
 }
 
 // ── Recording Modal ───────────────────────────────────────────────
 function RecordingModal({ cls, onClose, onSave }) {
-  const [url, setUrl]         = useState(cls.recording_url || '')
+  const [url, setUrl] = useState(cls.recording_url || '')
   const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState('')
+  const [error, setError] = useState('')
 
   const save = async () => {
     if (!url.trim()) return setError('URL required hai')
     setLoading(true)
     try {
-      const res  = await authFetch(`${BASE_URL}/admin/live-classes/${cls.id}/recording`, {
+      const res = await authFetch(`${BASE_URL}/admin/live-classes/${cls.id}/recording`, {
         method: 'POST', body: JSON.stringify({ recording_url: url.trim() })
       })
       const data = await res.json()
@@ -102,15 +102,15 @@ function RecordingModal({ cls, onClose, onSave }) {
 // ── Schedule Modal ────────────────────────────────────────────────
 function ScheduleModal({ courses, onClose, onSave }) {
   const [form, setForm] = useState({
-    course_id:    '',
-    title:        '',
-    subject:      '',
+    course_id: '',
+    title: '',
+    subject: '',
     teacher_name: 'Disha Faculty',
     scheduled_at: nowISTInput(),   // default = IST abhi
     duration_min: 90
   })
   const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState('')
+  const [error, setError] = useState('')
   const set = k => e => setForm({ ...form, [k]: e.target.value })
   const SUBJECTS = ['Mathematics', 'Reasoning', 'English', 'General Studies']
 
@@ -121,7 +121,7 @@ function ScheduleModal({ courses, onClose, onSave }) {
     setLoading(true)
     try {
       const utcTime = istToUTC(form.scheduled_at)   // IST → UTC
-      const res  = await authFetch(`${BASE_URL}/admin/live-classes`, {
+      const res = await authFetch(`${BASE_URL}/admin/live-classes`, {
         method: 'POST',
         body: JSON.stringify({
           ...form,
@@ -208,11 +208,11 @@ function ScheduleModal({ courses, onClose, onSave }) {
 
 // ── Main Page ─────────────────────────────────────────────────────
 export default function AdminLiveClass() {
-  const [classes, setClasses]           = useState([])
-  const [courses, setCourses]           = useState([])
-  const [loading, setLoading]           = useState(true)
+  const [classes, setClasses] = useState([])
+  const [courses, setCourses] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showSchedule, setShowSchedule] = useState(false)
-  const [recordModal, setRecordModal]   = useState(null)
+  const [recordModal, setRecordModal] = useState(null)
 
   const load = async () => {
     setLoading(true)
@@ -230,22 +230,22 @@ export default function AdminLiveClass() {
 
   useEffect(() => { load() }, [])
 
-  const setLive   = async id => { await authFetch(`${BASE_URL}/admin/live-classes/${id}/start`, { method: 'POST' }); load() }
-  const endCls    = async id => { await authFetch(`${BASE_URL}/admin/live-classes/${id}/end`,   { method: 'POST' }); load() }
+  const setLive = async id => { await authFetch(`${BASE_URL}/admin/live-classes/${id}/start`, { method: 'POST' }); load() }
+  const endCls = async id => { await authFetch(`${BASE_URL}/admin/live-classes/${id}/end`, { method: 'POST' }); load() }
   const deleteCls = async id => {
     if (!window.confirm('Is class ko delete karna chahte ho?')) return
     await authFetch(`${BASE_URL}/admin/live-classes/${id}`, { method: 'DELETE' })
     load()
   }
 
-  const live     = classes.filter(c => c.status === 'live')
+  const live = classes.filter(c => c.status === 'live')
   const upcoming = classes.filter(c => c.status === 'scheduled')
-  const ended    = classes.filter(c => c.status === 'ended')
+  const ended = classes.filter(c => c.status === 'ended')
 
   return (
     <div className="dashboard-page container fade-up">
       {showSchedule && <ScheduleModal courses={courses} onClose={() => setShowSchedule(false)} onSave={load} />}
-      {recordModal  && <RecordingModal cls={recordModal} onClose={() => setRecordModal(null)}  onSave={load} />}
+      {recordModal && <RecordingModal cls={recordModal} onClose={() => setRecordModal(null)} onSave={load} />}
 
       <div className="dashboard-header">
         <div>
@@ -289,6 +289,17 @@ export default function AdminLiveClass() {
               <button className="btn btn-danger btn-sm" onClick={() => endCls(cls.id)}>
                 <Square size={13} /> End Class
               </button>
+              <button
+                className="btn btn-success btn-sm"
+                onClick={() =>
+                  window.open(
+                    `https://disha-academy-db.daily.co/${cls.stream_url}`,
+                    '_blank'
+                  )
+                }
+              >
+                🎥 Enter Class
+              </button>
             </div>
           ))}
         </div>
@@ -302,25 +313,25 @@ export default function AdminLiveClass() {
         {upcoming.length === 0
           ? <div style={{ padding: '1.5rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Koi class nahi. Schedule karo!</div>
           : upcoming.map(cls => (
-          <div key={cls.id} className="class-item" style={{ marginBottom: '8px' }}>
-            <div className="class-info" style={{ flex: 1 }}>
-              <div className="class-top">
-                <span className="class-subject">{cls.subject}</span>
-                <Badge color="gray">{fmtIST(cls.scheduled_at)}</Badge>
+            <div key={cls.id} className="class-item" style={{ marginBottom: '8px' }}>
+              <div className="class-info" style={{ flex: 1 }}>
+                <div className="class-top">
+                  <span className="class-subject">{cls.subject}</span>
+                  <Badge color="gray">{fmtIST(cls.scheduled_at)}</Badge>
+                </div>
+                <p className="class-topic">{cls.title}</p>
+                <p className="class-teacher">{cls.teacher_name} · {cls.course_title}</p>
               </div>
-              <p className="class-topic">{cls.title}</p>
-              <p className="class-teacher">{cls.teacher_name} · {cls.course_title}</p>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button className="btn btn-primary btn-sm" onClick={() => setLive(cls.id)}>
+                  <Play size={13} /> Start Now
+                </button>
+                <button className="icon-action icon-action-danger" onClick={() => deleteCls(cls.id)}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button className="btn btn-primary btn-sm" onClick={() => setLive(cls.id)}>
-                <Play size={13} /> Start Now
-              </button>
-              <button className="icon-action icon-action-danger" onClick={() => deleteCls(cls.id)}>
-                <Trash2 size={14} />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {/* ENDED + RECORDINGS */}
@@ -331,32 +342,32 @@ export default function AdminLiveClass() {
         {ended.length === 0
           ? <div style={{ padding: '1.5rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Koi ended class nahi.</div>
           : ended.map(cls => (
-          <div key={cls.id} className="class-item" style={{ marginBottom: '8px' }}>
-            <div className="class-info" style={{ flex: 1 }}>
-              <div className="class-top">
-                <span className="class-subject">{cls.subject}</span>
-                <Badge color="green">Ended</Badge>
-                {cls.recording_url && <Badge color="blue">📹 Recording</Badge>}
+            <div key={cls.id} className="class-item" style={{ marginBottom: '8px' }}>
+              <div className="class-info" style={{ flex: 1 }}>
+                <div className="class-top">
+                  <span className="class-subject">{cls.subject}</span>
+                  <Badge color="green">Ended</Badge>
+                  {cls.recording_url && <Badge color="blue">📹 Recording</Badge>}
+                </div>
+                <p className="class-topic">{cls.title}</p>
+                <p className="class-teacher">{cls.teacher_name} · {fmtIST(cls.scheduled_at)}</p>
+                {cls.recording_url && (
+                  <a href={cls.recording_url} target="_blank" rel="noreferrer"
+                    style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px', display: 'block' }}>
+                    🔗 Recording dekho
+                  </a>
+                )}
               </div>
-              <p className="class-topic">{cls.title}</p>
-              <p className="class-teacher">{cls.teacher_name} · {fmtIST(cls.scheduled_at)}</p>
-              {cls.recording_url && (
-                <a href={cls.recording_url} target="_blank" rel="noreferrer"
-                  style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px', display: 'block' }}>
-                  🔗 Recording dekho
-                </a>
-              )}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button className="btn btn-secondary btn-sm" onClick={() => setRecordModal(cls)}>
+                  <Upload size={13} /> {cls.recording_url ? 'Update' : 'Add'} Recording
+                </button>
+                <button className="icon-action icon-action-danger" onClick={() => deleteCls(cls.id)}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button className="btn btn-secondary btn-sm" onClick={() => setRecordModal(cls)}>
-                <Upload size={13} /> {cls.recording_url ? 'Update' : 'Add'} Recording
-              </button>
-              <button className="icon-action icon-action-danger" onClick={() => deleteCls(cls.id)}>
-                <Trash2 size={14} />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   )

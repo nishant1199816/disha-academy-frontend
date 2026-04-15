@@ -291,14 +291,12 @@ export default function AdminLiveClass() {
               </button>
               <button
                 className="btn btn-success btn-sm"
-                onClick={() =>
-                  window.open(
-                    `https://disha-academy-db.daily.co/${cls.stream_url}`,
-                    '_blank'
-                  )
-                }
+                onClick={() => {
+                  const room = cls.stream_url || `disha-class-${cls.id}`
+                  window.open(`https://meet.jit.si/${room}`, '_blank')
+                }}
               >
-                🎥 Enter Class
+                🎥 Enter Class (Jitsi)
               </button>
             </div>
           ))}

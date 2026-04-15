@@ -96,16 +96,13 @@ export default function LiveClass() {
   const joinClass = (cls) => { setSelected(cls); setInClass(true) }
   const leaveClass = () => { setSelected(null); setInClass(false) }
 
-  // Daily.co room URL — stream_url is the room name
-  const getDailyUrl = (cls) => {
-    if (!cls.stream_url) {
-      alert("Room not assigned by admin")
-      return ""
-    }
-
+  // Jitsi Meet URL — completely free, no account needed
+  const getJitsiUrl = (cls) => {
+    // Room name = unique per class using class id
+    const room = cls.stream_url || `disha-class-${cls.id}`
     const name = encodeURIComponent(user?.name || 'Student')
-
-    return `https://disha-academy-db.daily.co/${cls.stream_url}?name=${name}&skipMediaPermissionPrompt=true`
+    // meet.jit.si is 100% free, no signup, embeds via iframe
+    return `https://meet.jit.si/${room}#userInfo.displayName="${name}"&config.prejoinPageEnabled=false&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.SHOW_JITSI_WATERMARK=false&interfaceConfig.SHOW_WATERMARK_FOR_GUESTS=false`
   }
 
   // ── Not logged in ──
@@ -132,7 +129,7 @@ export default function LiveClass() {
     </div>
   )
 
-  // ── In class — Daily.co iframe ──
+  // ── In class — Jitsi Meet iframe ──
   if (inClass && selected) return (
     <div className="live-page" onContextMenu={e => e.preventDefault()}>
       {/* Watermarks */}
@@ -163,11 +160,11 @@ export default function LiveClass() {
         </div>
       </div>
 
-      {/* Daily.co iframe — free, no time limit */}
+      {/* Jitsi Meet iframe — 100% free, no account needed */}
       <div className="jitsi-wrap">
         <iframe
-          src={getDailyUrl(selected)}
-          allow="camera; microphone; fullscreen; speaker; display-capture; autoplay"
+          src={getJitsiUrl(selected)}
+          allow="camera; microphone; fullscreen; speaker; display-capture; autoplay; clipboard-read; clipboard-write"
           style={{ width: '100%', height: '100%', border: 'none' }}
           title="Live Class"
         />

@@ -292,8 +292,8 @@ export default function AdminLiveClass() {
               <button
                 className="btn btn-success btn-sm"
                 onClick={() => {
-                  const room = cls.stream_url || `disha-class-${cls.id}`
-                  window.open(`https://meet.jit.si/${room}`, '_blank')
+                  setSelected(cls)
+                  setInClass(true)
                 }}
               >
                 🎥 Enter Class (Jitsi)

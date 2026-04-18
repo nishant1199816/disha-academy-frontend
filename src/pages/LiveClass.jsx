@@ -39,6 +39,7 @@ export default function LiveClass() {
   const [recordings, setRecordings] = useState([])
   const [selected, setSelected] = useState(null)
   const [inClass, setInClass] = useState(false)
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('live')
 
@@ -93,7 +94,16 @@ export default function LiveClass() {
     }
   }, [])
 
-  const joinClass = (cls) => { setSelected(cls); setInClass(true) }
+  const joinClass = (cls) => {
+    const url = getJitsiUrl(cls)
+
+    if (isMobile) {
+      window.location.href = url   // mobile direct open
+    } else {
+      setSelected(cls)
+      setInClass(true)             // desktop iframe
+    }
+  }
   const leaveClass = () => { setSelected(null); setInClass(false) }
 
   // Jitsi Meet URL — completely free, no account needed
@@ -101,8 +111,8 @@ export default function LiveClass() {
     // Room name = unique per class using class id
     const room = cls.stream_url || `disha-class-${cls.id}`
     const name = encodeURIComponent(user?.name || 'Student')
-    // web-production-2f860.up.railway.app is 100% free, no signup, embeds via iframe
-    return `https://web-production-2f860.up.railway.app/${room}#userInfo.displayName="${name}"&config.prejoinPageEnabled=false&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.SHOW_JITSI_WATERMARK=false&interfaceConfig.SHOW_WATERMARK_FOR_GUESTS=false`
+    // meet.jit.si is 100% free, no signup, embeds via iframe
+    return `https://web-production-2f860.up.railway.app/${room}#displayName=${name}&config.prejoinPageEnabled=false&config.startWithAudioMuted=true&interfaceConfig.SHOW_JITSI_WATERMARK=false`
   }
 
   // ── Not logged in ──

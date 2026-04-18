@@ -101,8 +101,8 @@ export default function LiveClass() {
     // Room name = unique per class using class id
     const room = cls.stream_url || `disha-class-${cls.id}`
     const name = encodeURIComponent(user?.name || 'Student')
-    // meet.jit.si is 100% free, no signup, embeds via iframe
-    return `https://meet.jit.si/${room}#userInfo.displayName="${name}"&config.prejoinPageEnabled=false&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.SHOW_JITSI_WATERMARK=false&interfaceConfig.SHOW_WATERMARK_FOR_GUESTS=false`
+    // web-production-2f860.up.railway.app is 100% free, no signup, embeds via iframe
+    return `https://web-production-2f860.up.railway.app/${room}#userInfo.displayName="${name}"&config.prejoinPageEnabled=false&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.SHOW_JITSI_WATERMARK=false&interfaceConfig.SHOW_WATERMARK_FOR_GUESTS=false`
   }
 
   // ── Not logged in ──

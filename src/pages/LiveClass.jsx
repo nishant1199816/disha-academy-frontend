@@ -29,21 +29,21 @@ const fmtDate = (iso) => {
 }
 
 export default function LiveClass() {
-  const { user }  = useAuth()
-  const navigate  = useNavigate()
+  const { user } = useAuth()
+  const navigate = useNavigate()
 
-  const [classes,    setClasses]    = useState([])
+  const [classes, setClasses] = useState([])
   const [recordings, setRecordings] = useState([])
-  const [loading,    setLoading]    = useState(true)
-  const [activeTab,  setActiveTab]  = useState('live')
+  const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('live')
 
-  const isAdmin   = user?.role === 'admin' || user?.role === 'teacher'
+  const isAdmin = user?.role === 'admin' || user?.role === 'teacher'
   const hasAccess = (user?.enrollments?.length > 0) || isAdmin
 
   useEffect(() => {
     if (!user) return
     const token = localStorage.getItem('edtech_token')
-    const url   = isAdmin
+    const url = isAdmin
       ? `${BASE_URL}/admin/live-classes`
       : `${BASE_URL}/dashboard`
 
@@ -68,14 +68,14 @@ export default function LiveClass() {
     })
       .then(r => r.json())
       .then(d => { if (d.success) setRecordings(d.classes || []) })
-      .catch(() => {})
+      .catch(() => { })
   }, [user])
 
   // Security
   useEffect(() => {
-    const noCtx  = e => e.preventDefault()
+    const noCtx = e => e.preventDefault()
     const noKeys = e => {
-      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)))
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)))
         e.preventDefault()
     }
     document.addEventListener('contextmenu', noCtx)
@@ -88,11 +88,21 @@ export default function LiveClass() {
 
   // meet.jit.si — new tab mein khulega (no 5 min limit when not embedded)
   const joinClass = (cls) => {
-    const room = cls.stream_url || `disha-class${cls.id?.slice(0, 8)}`
+    const room = cls.stream_url || `disha-class-${cls.id}`
     const name = encodeURIComponent(user?.name || 'Student')
-    // New tab mein open — iframe nahi — no 5 min restriction
-    const url = `https://meet.jit.si/${room}#displayName=${name}&config.prejoinPageEnabled=false&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.SHOW_JITSI_WATERMARK=false&interfaceConfig.SHOW_WATERMARK_FOR_GUESTS=false&interfaceConfig.TOOLBAR_ALWAYS_VISIBLE=true`
-    window.open(url, '_blank', 'noopener,noreferrer')
+
+    const url = `https://meet.jit.si/${room}
+    #displayName=${name}
+    &config.prejoinPageEnabled=false
+    &config.startWithAudioMuted=false
+    &config.startWithVideoMuted=false
+    &config.requireDisplayName=true`
+
+    if (/Android|iPhone/i.test(navigator.userAgent)) {
+      window.location.href = url
+    } else {
+      window.open(url, '_blank')
+    }
   }
 
   if (!user) return (
@@ -119,7 +129,7 @@ export default function LiveClass() {
     </div>
   )
 
-  const liveNow  = classes.filter(c => c.status === 'live')
+  const liveNow = classes.filter(c => c.status === 'live')
   const upcoming = classes.filter(c => c.status === 'scheduled')
 
   return (
